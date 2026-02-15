@@ -1,6 +1,5 @@
 package core.basesyntax;
 
-import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 public class ArrayList<T> implements List<T> {
@@ -15,20 +14,16 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public void add(T value) {
-        if (elementData.length > size) {
-            elementData[size++] = value;
-        } else if (elementData.length == size) {
+        if (elementData.length == size) {
             growIfFull();
-            elementData[size] = value;
-            this.size++;
         }
+        elementData[size++] = value;
     }
 
     @Override
     public void add(T value, int index) {
         if (index < 0 || index > size) {
-            throw new ArrayListIndexOutOfBoundsException("The index passed to the any of add "
-                    + "method is invalid.");
+            throw new ArrayListIndexOutOfBoundsException();
         }
 
         if (size == elementData.length) {
@@ -44,7 +39,7 @@ public class ArrayList<T> implements List<T> {
     @Override
     public void addAll(List<T> list) {
         if (list == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("List must not be null.");
         }
         int n = list.size();
         if (n == 0) {
@@ -61,29 +56,20 @@ public class ArrayList<T> implements List<T> {
 
     @Override
     public T get(int index) {
-        if (index < 0 || index >= size) {
-            throw new ArrayListIndexOutOfBoundsException("The index passed to the get method "
-                    + "is invalid.");
-        }
+        checkIndex(index);
         return (T) this.elementData[index];
     }
 
     @Override
     public void set(T value, int index) {
-        if (index < 0 || index >= size) {
-            throw new ArrayListIndexOutOfBoundsException("The index passed to the set method "
-                    + "is invalid.");
-        }
+        checkIndex(index);
 
         elementData[index] = value;
     }
 
     @Override
     public T remove(int index) {
-        if (index < 0 || index >= size) {
-            throw new ArrayListIndexOutOfBoundsException("The index passed to the remove method "
-                    + "is invalid.");
-        }
+        checkIndex(index);
 
         final T removed = (T) elementData[index];
 
@@ -107,7 +93,7 @@ public class ArrayList<T> implements List<T> {
                 return element;
             }
         }
-        throw new NoSuchElementException();
+        throw new NoSuchElementException("Element not found: " + element);
     }
 
     @Override
@@ -121,7 +107,19 @@ public class ArrayList<T> implements List<T> {
     }
 
     private void growIfFull() {
-        this.elementData = Arrays.copyOf(this.elementData, this.elementData.length
-                + (this.elementData.length >> 1));
+        int oldCapacity = this.elementData.length;
+        int newCapacity = oldCapacity + (oldCapacity >> 1);
+
+        Object[] newArray = new Object[newCapacity];
+
+        System.arraycopy(this.elementData, 0, newArray, 0, oldCapacity);
+
+        this.elementData = newArray;
+    }
+
+    private void checkIndex(int index) {
+        if (index < 0 || index >= size) {
+            throw new ArrayListIndexOutOfBoundsException();
+        }
     }
 }
